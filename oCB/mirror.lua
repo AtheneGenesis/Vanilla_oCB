@@ -9,6 +9,17 @@ function oCB:MIRROR_TIMER_START(type, value, maxValue, scale, pause, text)
 	if ( pause > 0 ) then CB.frames[type].pause = 1
 	else oCB.frames[type].pause = nil end
 	
+	if text == BREATH_LABEL then
+		oCB.frames[type].Texture:SetTexture("Interface/Icons/spell_shadow_demonbreath")
+		oCB.frames[type].Icon:Show()
+	elseif text == EXHAUSTION_LABEL then
+		oCB.frames[type].Texture:SetTexture("Interface/Icons/Ability_Suffocate")
+		oCB.frames[type].Icon:Show()
+	elseif text == "Feindre la mort" then
+		oCB.frames[type].Texture:SetTexture("Interface/Icons/Ability_Rogue_FeignDeath")
+		oCB.frames[type].Icon:Show()
+	end
+	
 	oCB.frames[type].Spell:SetText(text)
 
 	local c = self.db.profile.Mirror[type]
