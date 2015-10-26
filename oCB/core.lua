@@ -48,6 +48,13 @@ local Borders 		= {
 oCB = AceLibrary("AceAddon-2.0"):new("AceEvent-2.0", "AceDebug-2.0", "AceHook-2.0", "AceDB-2.0", "AceConsole-2.0")
 local BS = AceLibrary("Babble-Spell-2.2")
 
+local roman = {
+	'I', 'II', 'III', 'IV', 'V',
+	'VI', 'VII', 'VIII', 'IX', 'X',
+	'XI', 'XII', 'XIII', 'XIV', 'XV',
+	'XVI', 'XVII', 'XVIII', 'XIX', 'XX',
+} -- 20 enough for vanilla ?
+
 function oCB:OnInitialize()
 	self.Textures = Textures
 	self.Borders = Borders
@@ -345,6 +352,7 @@ preoCB_csbn = CastSpellByName
 function oCB_csbn(pass, onSelf)
 	preoCB_csbn(pass, onSelf)
 	if pass and type(pass) == "string" then oCBIcon = BS:GetSpellIcon(pass) end
+	if getglobal("GameTooltipTextLeft1"):GetText() then oCBTooltip = getglobal("GameTooltipTextLeft1"):GetText() end
 	oCBCastSent = GetTime()
 end
 CastSpellByName = oCB_csbn
@@ -354,6 +362,7 @@ preoCB_cs = CastSpell
 function oCB_cs(pass, onSelf)
 	preoCB_cs(pass, onSelf)
 	if pass and type(pass) == "string" then oCBIcon =  BS:GetSpellIcon(pass) end
+	if getglobal("GameTooltipTextLeft1"):GetText() then oCBTooltip = getglobal("GameTooltipTextLeft1"):GetText() end
 	oCBCastSent = GetTime()
 end
 CastSpell = oCB_cs
@@ -361,8 +370,11 @@ CastSpell = oCB_cs
 -- Use Action hook - Athene edit
 preoCB_use = UseAction
 function oCB_use(p1,p2,p3)
-	preoCB_use(p1,p2,p3)	
+	preoCB_use(p1,p2,p3)
+	oCBRank = nil	
 	if p1 then oCBIcon = GetActionTexture(p1) end
+	if p1 and false then oCBRank = oCB:GetSpellRank(p1) end
+	if getglobal("GameTooltipTextLeft1"):GetText() then oCBTooltip = getglobal("GameTooltipTextLeft1"):GetText() end
 	oCBCastSent = GetTime()
 end
 UseAction = oCB_use
@@ -371,8 +383,26 @@ function ItemLinkToName(link)
 	return gsub(link,"^.*%[(.*)%].*$","%1");
 end
 
+function oCB:GetSpellRank(slot)
+	oCB_TooltipTextLeft1:SetText();
+	oCB_TooltipTextRight1:SetText();
+	oCB_Tooltip:SetAction(slot);
+	local start, stop, name, rank;
+	name = oCB_TooltipTextLeft1:GetText();
+	rank = oCB_TooltipTextRight1:GetText();
+	start, stop, rank = string.find((rank or ""), "(%d+)");
+	rank = (rank or 1) / 1.0;
+	if false then --roman
+	local num = tonumber(rank) --rank:match(L["Rank (%d+)"])
+	if num and num > 0 then
+		rank = roman[num]
+	end
+end
+	return rank;
+end
+
 function oCB:FindItemIcon(item)
-	if ( not item ) then return; end
+	if ( not item ) or type(item) ~= "string" then return; end
 	item = string.lower(item);
 	local link;
 	for i = 1,23 do
@@ -397,7 +427,7 @@ function oCB:FindItemIcon(item)
 		for j = 1,MAX_CONTAINER_ITEMS do
 			link = GetContainerItemLink(i,j);
 			if ( link ) then
-				if ( item == string.lower(ItemLinkToName(link))) then
+				if (string.find(string.lower(ItemLinkToName(link)), item)) then
 					bag, slot = i, j;
 					texture, count = GetContainerItemInfo(i,j);
 				end

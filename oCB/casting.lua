@@ -29,7 +29,11 @@ function oCB:SpellStart(s, d, dIsInSeconds, dontRegister)
 	self.frames.CastingBar.Bar:SetStatusBarColor(c.r, c.g, c.b)
 	self.frames.CastingBar.Bar:SetMinMaxValues(self.startTime, self.maxValue )
 	self.frames.CastingBar.Bar:SetValue(0)
-	self.frames.CastingBar.Spell:SetText(s)
+	if oCBRank then
+		self.frames.CastingBar.Spell:SetText(s.." "..oCBRank)
+	else
+		self.frames.CastingBar.Spell:SetText(s)
+	end
 	self.frames.CastingBar:SetAlpha(1)
 	self.frames.CastingBar.Time:SetText("")
 	self.frames.CastingBar.Delay:SetText("")
@@ -52,16 +56,30 @@ function oCB:SpellStart(s, d, dIsInSeconds, dontRegister)
 	
 	self.SpellIcon = BS:GetSpellIcon(s)
 	self.ItemIcon = self:FindItemIcon(s)
-	if not self.ItemIcon then self.ItemIcon = self:FindItemIcon(getglobal("GameTooltipTextLeft1"):GetText()) end
+	if not self.SpellIcon and not self.ItemIcon then
+		if (TradeSkillFrame and TradeSkillFrame:IsVisible()) then
+			self:Debug("entering loop !")
+			for i=1,GetNumTradeSkills() do
+				if GetTradeSkillInfo(i) == s then
+					self:Debug("found! "..GetTradeSkillInfo(i))
+					self.SpellIcon = GetTradeSkillIcon(i);
+					break
+				end
+			end
+			if not self.SpellIcon then self:Debug("Craft icon not found :(") end
+		elseif oCBTooltip then
+			self.ItemIcon = self:FindItemIcon(oCBTooltip)
+		end
+	end
 	if self.SpellIcon then
 		self.frames.CastingBar.Texture:SetTexture(self.SpellIcon)
 		self.frames.CastingBar.Icon:Show()
-	elseif string.find(s, "^Recette") or string.find(s, "^Plans :") or string.find(s, "^Patron :") or string.find(s, "^Formule :") then
+	elseif string.find(s, "^Recette") or string.find(s, "^Plans :") or string.find(s, "^Patron :") or string.find(s, "^Formule :") then --missing translation
 		self.frames.CastingBar.Texture:SetTexture("Interface\\AddOns\\oCB\\Icons\\Spell_Arcane_MindMastery")
 		self.frames.CastingBar.Icon:Show()
 		self.frames.CastingBar.Latency:SetText("")
 		self.frames.CastingBar.LagBar:SetWidth(0)
-	elseif string.find(s, "Fonte") then
+	elseif string.find(s, "Fonte") then --not sure if still usefull, need a char with blacksmith to check
 		self.frames.CastingBar.Texture:SetTexture("Interface/Icons/spell_fire_flameblades")
 		self.frames.CastingBar.Icon:Show()
 		self.frames.CastingBar.Latency:SetText("")
@@ -71,7 +89,7 @@ function oCB:SpellStart(s, d, dIsInSeconds, dontRegister)
 		self.frames.CastingBar.Icon:Show()
 		self.frames.CastingBar.Latency:SetText("")
 		self.frames.CastingBar.LagBar:SetValue(0)
-	elseif s == "Invocation d'un char d'assaut qiraji jaune" then
+	elseif s == "Invocation d'un char d'assaut qiraji jaune" then --clean that
 		self.frames.CastingBar.Texture:SetTexture("Interface/Icons/INV_Misc_QirajiCrystal_01")
 		self.frames.CastingBar.Icon:Show()
 		self.frames.CastingBar.Latency:SetText("")
@@ -84,6 +102,8 @@ function oCB:SpellStart(s, d, dIsInSeconds, dontRegister)
 	self.delay 		= 0
 	self.casting 		= 1
 	self.fadeOut 	= nil
+	
+	oCBRank = nil
 	
 	self.frames.CastingBar:Show()
 	self.frames.CastingBar.Spark:Show()
