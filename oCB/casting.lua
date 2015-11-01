@@ -18,7 +18,7 @@ function oCB:SpellStart(s, d, dIsInSeconds, dontRegister)
 	end
 	
     if not dontRegister then
-        self:RegisterEvent("SPELLCAST_STOP", "SpellFailed")
+        self:RegisterEvent("SPELLCAST_STOP", "SpellStop")
         self:RegisterEvent("SPELLCAST_INTERRUPTED","SpellFailed")
         self:RegisterEvent("SPELLCAST_FAILED", "SpellFailed")
         self:RegisterEvent("SPELLCAST_DELAYED", "SpellDelayed")
