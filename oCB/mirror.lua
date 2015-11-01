@@ -1,4 +1,5 @@
 local elapsed = 0
+local BS = AceLibrary("Babble-Spell-2.2")
 
 function oCB:MIRROR_TIMER_START(type, value, maxValue, scale, pause, text)
 	self:Debug("MIRROR_TIMER_START - %s | %s | %s | %s | %s | %s", type, value, maxValue, scale, pause, text)
@@ -15,7 +16,7 @@ function oCB:MIRROR_TIMER_START(type, value, maxValue, scale, pause, text)
 	elseif text == EXHAUSTION_LABEL then
 		oCB.frames[type].Texture:SetTexture("Interface/Icons/Ability_Suffocate")
 		oCB.frames[type].Icon:Show()
-	elseif text == "Feindre la mort" then
+	elseif text == BS["Feign Death"] then
 		oCB.frames[type].Texture:SetTexture("Interface/Icons/Ability_Rogue_FeignDeath")
 		oCB.frames[type].Icon:Show()
 	end

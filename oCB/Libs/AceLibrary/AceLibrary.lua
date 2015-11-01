@@ -1,10 +1,10 @@
 --[[
 Name: AceLibrary
-Revision: $Rev: 14130 $
+Revision: $Rev: 11109 $
 Developed by: The Ace Development Team (http://www.wowace.com/index.php/The_Ace_Development_Team)
 Inspired By: Iriel (iriel@vigilance-committee.org)
              Tekkub (tekkub@gmail.com)
-             Revision: $Rev: 14130 $
+             Revision: $Rev: 11109 $
 Website: http://www.wowace.com/
 Documentation: http://www.wowace.com/index.php/AceLibrary
 SVN: http://svn.wowace.com/root/trunk/Ace2/AceLibrary
@@ -17,20 +17,11 @@ Dependencies: None
 ]]
 
 local ACELIBRARY_MAJOR = "AceLibrary"
-local ACELIBRARY_MINOR = "$Revision: 14130 $"
+local ACELIBRARY_MINOR = "$Revision: 11109 $"
 
-local table_setn
-do
-	local version = GetBuildInfo()
-	if string.find(version, "^2%.") then
-		-- 2.0.0
-		table_setn = function() end
-	else
-		table_setn = table.setn
-	end
-end
-
-local string_gfind = string.gmatch or string.gfind
+-- CHANGE DEBUG TO ``false`` ON RELEASE -------------------
+local DEBUG = true
+-- CHANGE DEBUG TO ``false`` ON RELEASE -------------------
 
 local _G = getfenv(0)
 local previous = _G[ACELIBRARY_MAJOR]
@@ -51,9 +42,10 @@ local function error(self, message, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11
 		tmp = {}
 	else
 		for k in pairs(tmp) do tmp[k] = nil end
-		table_setn(tmp, 0)
+		table.setn(tmp, 0)
 	end
-
+	
+	tmp.n = 0
 	table.insert(tmp, a1)
 	table.insert(tmp, a2)
 	table.insert(tmp, a3)
@@ -74,7 +66,7 @@ local function error(self, message, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11
 	table.insert(tmp, a18)
 	table.insert(tmp, a19)
 	table.insert(tmp, a20)
-
+	
 	local stack = debugstack()
 	if not message then
 		local _,_,second = string.find(stack, "\n(.-)\n")
@@ -88,7 +80,7 @@ local function error(self, message, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11
 		end
 		message = string.format(message, unpack(tmp))
 	end
-
+	
 	if getmetatable(self) and getmetatable(self).__tostring then
 		message = string.format("%s: %s", tostring(self), message)
 	elseif type(rawget(self, 'GetLibraryVersion')) == "function" and AceLibrary:HasInstance(self:GetLibraryVersion()) then
@@ -96,13 +88,13 @@ local function error(self, message, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11
 	elseif type(rawget(self, 'class')) == "table" and type(rawget(self.class, 'GetLibraryVersion')) == "function" and AceLibrary:HasInstance(self.class:GetLibraryVersion()) then
 		message = string.format("%s: %s", self.class:GetLibraryVersion(), message)
 	end
-
+	
 	local first = string.gsub(stack, "\n.*", "")
 	local file = string.gsub(first, ".*\\(.*).lua:%d+: .*", "%1")
 	file = string.gsub(file, "([%(%)%.%*%+%-%[%]%?%^%$%%])", "%%%1")
-
+	
 	local i = 0
-	for s in string_gfind(stack, "\n([^\n]*)") do
+	for s in string.gfind(stack, "\n([^\n]*)") do
 		i = i + 1
 		if not string.find(s, file .. "%.lua:%d+:") then
 			file = string.gsub(s, "^.*\\(.*).lua:%d+: .*", "%1")
@@ -111,7 +103,7 @@ local function error(self, message, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11
 		end
 	end
 	local j = 0
-	for s in string_gfind(stack, "\n([^\n]*)") do
+	for s in string.gfind(stack, "\n([^\n]*)") do
 		j = j + 1
 		if j > i and not string.find(s, file .. "%.lua:%d+:") then
 			_G.error(message, j + 1)
@@ -227,7 +219,7 @@ do
 					func(v, to, from)
 				end
 			end
-
+			
 			if type(k) == "table" then
 				if not recurse[k] then
 					func(k, to, from)
@@ -257,7 +249,7 @@ end
 local function destroyTable(t)
 	setmetatable(t, nil)
 	for k,v in pairs(t) do t[k] = nil end
-	table_setn(t, 0)
+	table.setn(t, 0)
 end
 
 local function isFrame(frame)
@@ -267,7 +259,7 @@ end
 local new, del
 do
 	local tables = setmetatable({}, {__mode = "k"})
-
+	
 	function new()
 		local t = next(tables)
 		if t then
@@ -277,7 +269,7 @@ do
 			return {}
 		end
 	end
-
+	
 	function del(t, depth)
 		if depth and depth > 0 then
 			for k,v in pairs(t) do
@@ -298,7 +290,7 @@ end
 local function copyTable(from)
 	local to = new()
 	for k,v in pairs(from) do to[k] = v end
-	table_setn(to, table.getn(from))
+	table.setn(to, table.getn(from))
 	setmetatable(to, getmetatable(from))
 	return to
 end
@@ -335,7 +327,7 @@ do
 		end
 		return list
 	end
-
+	
 	function deepTransfer(to, from, saveFields, major, list, list2)
 		setmetatable(to, nil)
 		local createdList
@@ -368,7 +360,7 @@ do
 				rawset(to, k, from[k])
 			end
 		end
-		table_setn(to, table.getn(from))
+		table.setn(to, table.getn(from))
 		setmetatable(to, getmetatable(from))
 		local mt = getmetatable(to)
 		if mt then
@@ -386,32 +378,6 @@ do
 	end
 end
 
--- @method      TryToLoadStandalone
--- @brief       Attempt to find and load a standalone version of the requested library
--- @param major A string representing the major version
--- @return      If library is found, return values from the call to LoadAddOn are returned
---              If the library has been requested previously, nil is returned.
-local function TryToLoadStandalone(major)
-	if not AceLibrary.scannedlibs then AceLibrary.scannedlibs = {} end
-	if AceLibrary.scannedlibs[major] then return end
-
-	AceLibrary.scannedlibs[major] = true
-
-	local name, _, _, enabled, loadable = GetAddOnInfo(major)
-	if loadable then
-		return LoadAddOn(name)
-	end
-
-	for i=1,GetNumAddOns() do
-		if GetAddOnMetadata(i, "X-AceLibrary-"..major) then
-			local name, _, _, enabled, loadable = GetAddOnInfo(i)
-			if loadable then
-				return LoadAddOn(name)
-			end
-		end
-	end
-end
-
 -- @method      IsNewVersion
 -- @brief       Obtain whether the supplied version would be an upgrade to the
 --              current version. This allows for bypass code in library
@@ -422,8 +388,6 @@ end
 --              currently available.
 function AceLibrary:IsNewVersion(major, minor)
 	argCheck(self, major, 2, "string")
-	TryToLoadStandalone(major)
-
 	if type(minor) == "string" then
 		local m = svnRevisionToNumber(minor)
 		if m then
@@ -447,8 +411,6 @@ end
 -- @return      Whether an instance exists.
 function AceLibrary:HasInstance(major, minor)
 	argCheck(self, major, 2, "string")
-	TryToLoadStandalone(major)
-
 	if minor then
 		if type(minor) == "string" then
 			local m = svnRevisionToNumber(minor)
@@ -474,7 +436,6 @@ end
 -- @return      The library with the given major/minor version.
 function AceLibrary:GetInstance(major, minor)
 	argCheck(self, major, 2, "string")
-	TryToLoadStandalone(major)
 
 	local data = self.libs[major]
 	if not data then
@@ -579,7 +540,7 @@ function AceLibrary:Register(newInstance, major, minor, activateFunc, deactivate
 		if activateFunc then
 			activateFunc(instance, nil, nil) -- no old version, so explicit nil
 		end
-
+		
 		if externalFunc then
 			for k,data in pairs(self.libs) do
 				if k ~= major then
@@ -587,7 +548,7 @@ function AceLibrary:Register(newInstance, major, minor, activateFunc, deactivate
 				end
 			end
 		end
-
+		
 		for k,data in pairs(self.libs) do
 			if k ~= major and data.externalFunc then
 				data.externalFunc(data.instance, major, instance)
@@ -599,30 +560,33 @@ function AceLibrary:Register(newInstance, major, minor, activateFunc, deactivate
 		if AceEvent then
 			AceEvent.TriggerEvent(self, "AceLibrary_Register", major, instance)
 		end
-
+		
 		return instance
 	end
 	local instance = data.instance
 	if minor <= data.minor then
-		-- This one is already obsolete, raise an error.
-		_G.error(string.format("Obsolete library registered. %s is already registered at version %d. You are trying to register version %d. Hint: if not AceLibrary:IsNewVersion(%q, %d) then return end", major, data.minor, minor, major, minor), 2)
-		return
+		if DEBUG then
+			-- This one is already obsolete, raise an error.
+			error(string.format("Obsolete library registered. %s is already registered at version %d. You are trying to register version %d. Hint: if not AceLibrary:IsNewVersion(%q, %d) then return end", major, data.minor, minor, major, minor), 2)
+			return
+		end
+		return instance
 	end
 	-- This is an update
 	local oldInstance = new()
-
+	
 	addToPositions(newInstance, major)
 	local isAceLibrary = (AceLibrary == newInstance)
 	local old_error, old_assert, old_argCheck, old_pcall
 	if isAceLibrary then
 		self = instance
 		AceLibrary = instance
-
+		
 		old_error = instance.error
 		old_assert = instance.assert
 		old_argCheck = instance.argCheck
 		old_pcall = instance.pcall
-
+		
 		self.error = error
 		self.assert = assert
 		self.argCheck = argCheck
@@ -674,7 +638,7 @@ function AceLibrary:Register(newInstance, major, minor, activateFunc, deactivate
 		oldDeactivateFunc(oldInstance)
 	end
 	del(oldInstance)
-
+	
 	if externalFunc then
 		for k,data in pairs(self.libs) do
 			if k ~= major then
@@ -682,7 +646,7 @@ function AceLibrary:Register(newInstance, major, minor, activateFunc, deactivate
 			end
 		end
 	end
-
+	
 	return instance
 end
 
@@ -711,13 +675,9 @@ local function activate(self, oldLib, oldDeactivate)
 	if not self.libs then
 		if oldLib then
 			self.libs = oldLib.libs
-			self.scannedlibs = oldLib.scannedlibs
 		end
 		if not self.libs then
 			self.libs = {}
-		end
-		if not self.scannedlibs then
-			self.scannedlibs = {}
 		end
 	end
 	if not self.positions then
@@ -728,10 +688,10 @@ local function activate(self, oldLib, oldDeactivate)
 			self.positions = setmetatable({}, { __mode = "k" })
 		end
 	end
-
+	
 	-- Expose the library in the global environment
 	_G[ACELIBRARY_MAJOR] = self
-
+	
 	if oldDeactivate then
 		oldDeactivate(oldLib)
 	end

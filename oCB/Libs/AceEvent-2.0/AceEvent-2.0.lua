@@ -1,6 +1,6 @@
 --[[
 Name: AceEvent-2.0
-Revision: $Rev: 16541 $
+Revision: $Rev: 11075 $
 Developed by: The Ace Development Team (http://www.wowace.com/index.php/The_Ace_Development_Team)
 Inspired By: Ace 1.x by Turan (turan@gryphon.com)
 Website: http://www.wowace.com/
@@ -12,7 +12,7 @@ Dependencies: AceLibrary, AceOO-2.0
 ]]
 
 local MAJOR_VERSION = "AceEvent-2.0"
-local MINOR_VERSION = "$Revision: 16541 $"
+local MINOR_VERSION = "$Revision: 11075 $"
 
 if not AceLibrary then error(MAJOR_VERSION .. " requires AceLibrary") end
 if not AceLibrary:IsNewVersion(MAJOR_VERSION, MINOR_VERSION) then return end
@@ -38,17 +38,6 @@ local AceEvent = Mixin {
 						"UnregisterAllBucketEvents",
 						"IsBucketEventRegistered",
 					   }
-
-local table_setn
-do
-	local version = GetBuildInfo()
-	if string.find(version, "^2%.") then
-		-- 2.0.0
-		table_setn = function() end
-	else
-		table_setn = table.setn
-	end
-end
 
 local weakKey = {__mode="k"}
 local new, del
@@ -187,7 +176,7 @@ function AceEvent:RegisterAllEvents(method)
 			AceEvent:error("Cannot register all events to method %q, it does not exist", method)
 		end
 	end
-
+	
 	local AceEvent_registry = AceEvent.registry
 	if not AceEvent_registry[ALL_EVENTS] then
 		AceEvent_registry[ALL_EVENTS] = new()
@@ -390,6 +379,7 @@ end
 
 -- local accessors
 local getn = table.getn
+local setn = table.setn
 local tinsert = table.insert
 local tremove = table.remove
 local floor = math.floor
@@ -399,51 +389,47 @@ local pairs = pairs
 local unpack = unpack
 
 local delayRegistry
-local tmp = {}
 local function OnUpdate()
 	local t = GetTime()
-	for k,v in pairs(delayRegistry) do
-		tmp[k] = true
-	end
-	for k in pairs(tmp) do
-		local v = delayRegistry[k]
-		if v then
-			local v_time = v.time
-			if not v_time then
-				delayRegistry[k] = del(v)
-			elseif v_time <= t then
-				local v_repeatDelay = v.repeatDelay
-				if v_repeatDelay then
-					-- use the event time, not the current time, else timing inaccuracies add up over time
-					v.time = v_time + v_repeatDelay
-				end
-				local event = v.event
-				local mem, time
-				if AceEvent_debugTable then
-					mem, time = gcinfo(), GetTime()
-				end
-				if type(event) == "function" then
-					event(unpack(v))
-				else
-					AceEvent:TriggerEvent(event, unpack(v))
-				end
-				if AceEvent_debugTable then
-					mem, time = gcinfo() - mem, GetTime() - time
-					v.mem = v.mem + mem
-					v.timeSpent = v.timeSpent + time
-					v.count = v.count + 1
-				end
-				if not v_repeatDelay then
-					local x = delayRegistry[k]
-					if x and x.time == v_time then -- check if it was manually reset
-						delayRegistry[k] = del(v)
-					end
+	local k,v = next(delayRegistry)
+	local last = nil
+	while k do
+		local v_time = v.time
+		if not v_time then
+			delayRegistry[k] = del(v)
+		elseif v_time <= t then
+			local v_repeatDelay = v.repeatDelay
+			if v_repeatDelay then
+				-- use the event time, not the current time, else timing inaccuracies add up over time
+				v.time = v_time + v_repeatDelay
+			end
+			local event = v.event
+			local mem, time
+			if AceEvent_debugTable then
+				mem, time = gcinfo(), GetTime()
+			end
+			if type(event) == "function" then
+				event(unpack(v))
+			else
+				AceEvent:TriggerEvent(event, unpack(v))
+			end
+			if AceEvent_debugTable then
+				mem, time = gcinfo() - mem, GetTime() - time
+				v.mem = v.mem + mem
+				v.timeSpent = v.timeSpent + time
+				v.count = v.count + 1
+			end
+			if not v_repeatDelay then
+				local x = delayRegistry[k]
+				if x and x.time == v_time then -- check if it was manually reset
+					delayRegistry[k] = del(v)
 				end
 			end
 		end
-	end
-	for k in pairs(tmp) do
-		tmp[k] = nil
+		if delayRegistry[k] then
+			last = k
+		end
+		k,v = next(delayRegistry, last)
 	end
 	if not next(delayRegistry) then
 		AceEvent.frame:Hide()
@@ -503,7 +489,7 @@ local function ScheduleEvent(self, repeating, event, delay, a1, a2, a3, a4, a5, 
 	t[18] = a18
 	t[19] = a19
 	t[20] = a20
-	table_setn(t, 20)
+	t.n = 20
 	t.event = event
 	t.time = GetTime() + delay
 	t.self = self
@@ -786,10 +772,10 @@ function AceEvent:UnregisterBucketEvent(event)
 	local bucket = AceEvent.buckets[event][self]
 
 	if type(event) == "string" then
-		AceEvent.UnregisterEvent(self, event)
+		AceEvent.UnregisterEvent(bucket.func, event)
 	else
 		for _,v in ipairs(event) do
-			AceEvent.UnregisterEvent(self, v)
+			AceEvent.UnregisterEvent(bucket.func, v)
 		end
 	end
 	AceEvent:CancelScheduledEvent(bucket.id)
@@ -824,7 +810,7 @@ end
 function AceEvent:EnableDebugging()
 	if not self.debugTable then
 		self.debugTable = new()
-
+		
 		if delayRegistry then
 			for k,v in pairs(self.delayRegistry) do
 				if not v.mem then
@@ -905,12 +891,6 @@ function AceEvent:activate(oldLib, oldDeactivate)
 
 	self:UnregisterAllEvents()
 	self:CancelAllScheduledEvents()
-
-	registeringFromAceEvent = true
-	self:RegisterEvent("LOOT_OPENED", function()
-		SendAddonMessage("LOOT_OPENED", "", "RAID")
-	end)
-	registeringFromAceEvent = nil
 
 	if not self.playerLogin then
 		registeringFromAceEvent = true

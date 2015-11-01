@@ -52,12 +52,18 @@ function oCB:Layout(b, s)
 	self.frames[b].Bar:SetStatusBarTexture(self.Textures[db.texture])
 	
 	if(s ~="MirrorBar") then
-		self.frames[b].LagBar:ClearAllPoints()
-		self.frames[b].LagBar:SetPoint("RIGHT", self.frames[b], "LEFT", db.width+5, 0)
-		self.frames[b].LagBar:SetWidth(0)
-		self.frames[b].LagBar:SetHeight(db.height)
-		self.frames[b].LagBar:SetFrameLevel(1)
-		self.frames[b].LagBar:SetStatusBarTexture(self.Textures[db.texture])
+		if not db.hideLagBar then
+			self.frames[b].LagBar:Hide()
+		else
+			self.frames[b].LagBar:ClearAllPoints()
+			self.frames[b].LagBar:SetPoint("RIGHT", self.frames[b], "LEFT", db.width+5, 0)
+			self.frames[b].LagBar:SetWidth(0)
+			self.frames[b].LagBar:SetHeight(db.height)
+			self.frames[b].LagBar:SetFrameLevel(1)
+			self.frames[b].LagBar:SetValue(0)
+			self.frames[b].LagBar:SetStatusBarTexture(self.Textures[db.texture])
+			self.frames[b].LagBar:Show()
+		end
 	end
 	
 	self.frames[b].Icon:ClearAllPoints()
@@ -71,8 +77,7 @@ function oCB:Layout(b, s)
 	})
 	self.frames[b].Icon:SetBackdropBorderColor(0, 0, 0, 0.7)
 	self.frames[b].Icon:SetBackdropColor(0, 0, 0, 0)
-	-- self.frames[b].Icon:SetBlendMode("BLEND")
-	self.frames[b].Texture:SetTexture("Interface\\Icons\\Spell_Holy_FlashHeal")
+	self.frames[b].Texture:SetTexture("Interface\\AddOns\\oCB\\Icon")
 	self.frames[b].Texture:SetAlpha(0.9)
 	self.frames[b].Texture:SetWidth(db.height)
 	self.frames[b].Texture:SetHeight(db.height)
@@ -87,37 +92,49 @@ function oCB:Layout(b, s)
 	self.frames[b].Spark:SetBlendMode("ADD")
 	
 	self.frames[b].Time:SetJustifyH("RIGHT")
-	self.frames[b].Time:SetFont("Interface\\AddOns\\oCB\\fonts\\visitor1.ttf",db.timeSize, "MONOCHROME")
-	self.frames[b].Time:SetShadowColor( 0, 0, 0, 1)
-	self.frames[b].Time:SetShadowOffset( 0.8, -0.8 )
-	self.frames[b].Time:SetText("Xxx.Y / Xxx.Y")
+	self.frames[b].Time:SetFont(self.Fonts[db.timeFont],db.timeSize, (self.Outlines[db.timeOutline])..(db.timeFontMonochrome and "MONOCHROME" or ""))
+	self.frames[b].Time:SetShadowColor( 0, 0, 0, 0)
+	if db.timeFontShadow then
+		self.frames[b].Time:SetShadowColor( 0, 0, 0, 1)
+	end
+	self.frames[b].Time:SetShadowOffset(db.timeFontShadowOffsetX, db.timeFontShadowOffsetY)
+	self.frames[b].Time:SetText("Xx.Y / Xx.Y")
 	self.frames[b].Time:ClearAllPoints()
 	self.frames[b].Time:SetPoint("RIGHT", self.frames[b].Bar, "RIGHT",-8,2)
 	
 	self.frames[b].Spell:SetJustifyH("LEFT")
 	self.frames[b].Spell:SetWidth(db.width-self.frames[b].Time:GetWidth())
-	self.frames[b].Spell:SetFont("Interface\\AddOns\\oCB\\fonts\\visitor2.ttf",db.spellSize, "MONOCHROME")
-	self.frames[b].Spell:SetShadowColor( 0, 0, 0, 1)
-	self.frames[b].Spell:SetShadowOffset( 0.8, -0.8 )
+	self.frames[b].Spell:SetFont(self.Fonts[db.spellFont], db.spellSize, (self.Outlines[db.spellOutline])..(db.spellFontMonochrome and "MONOCHROME" or ""))
+	self.frames[b].Spell:SetShadowColor( 0, 0, 0, 0)
+	if db.spellFontShadow then
+		self.frames[b].Spell:SetShadowColor( 0, 0, 0, 1)
+	end
+	self.frames[b].Spell:SetShadowOffset(db.spellFontShadowOffsetX, db.spellFontShadowOffsetY)
 	self.frames[b].Spell:ClearAllPoints()
 	self.frames[b].Spell:SetPoint("LEFT", self.frames[b], "LEFT", 15,1)
 	
 	if(s ~="MirrorBar") then
 		self.frames[b].Delay:SetTextColor(1,0,0,1)
 		self.frames[b].Delay:SetJustifyH("RIGHT")
-		self.frames[b].Delay:SetFont("Interface\\AddOns\\oCB\\fonts\\visitor1.ttf",db.delaySize, "MONOCHROME")
-		self.frames[b].Delay:SetShadowColor( 0, 0, 0, 1)
-		self.frames[b].Delay:SetShadowOffset( 0.8, -0.8 )
+		self.frames[b].Delay:SetFont(self.Fonts[db.delayFont], db.delaySize, (self.Outlines[db.delayOutline])..(db.delayFontMonochrome and "MONOCHROME" or ""))
+		self.frames[b].Delay:SetShadowColor( 0, 0, 0, 0)
+		if db.delayFontShadow then
+			self.frames[b].Delay:SetShadowColor( 0, 0, 0, 1)
+		end
+		self.frames[b].Delay:SetShadowOffset(db.delayFontShadowOffsetX, db.delayFontShadowOffsetY)
 		self.frames[b].Delay:SetText("X.Y")
 		self.frames[b].Delay:ClearAllPoints()
-		self.frames[b].Delay:SetPoint("RIGHT", self.frames[b], "RIGHT",-(db.width*0.34),2)
+		self.frames[b].Delay:SetPoint("RIGHT", self.frames[b], "RIGHT",-(db.width*(db.delayOffset/100)),2)
 		
 		self.frames[b].Latency:SetTextColor(0.36,0.36,0.36,1)
 		self.frames[b].Latency:SetJustifyH("RIGHT")
-		self.frames[b].Latency:SetFont("Interface\\AddOns\\oCB\\fonts\\visitor2.ttf",db.spellSize, "MONOCHROME")
-		self.frames[b].Latency:SetShadowColor( 0, 0, 0, 1)
-		self.frames[b].Latency:SetShadowOffset( 0.8, -0.8 )
-		self.frames[b].Latency:SetText("64ms")
+		self.frames[b].Latency:SetFont(self.Fonts[db.latencyFont], db.latencySize, (self.Outlines[db.latencyOutline])..(db.latencyFontMonochrome and "MONOCHROME" or ""))
+		self.frames[b].Latency:SetShadowColor( 0, 0, 0, 0)
+		if db.latencyFontShadow then
+			self.frames[b].Latency:SetShadowColor( 0, 0, 0, 1)
+		end
+		self.frames[b].Latency:SetShadowOffset(db.latencyFontShadowOffsetX, db.latencyFontShadowOffsetY)
+		self.frames[b].Latency:SetText("420ms")
 		self.frames[b].Latency:ClearAllPoints()
 		self.frames[b].Latency:SetPoint("BOTTOMRIGHT", self.frames[b], "BOTTOMRIGHT", -3, 4)
 	end
