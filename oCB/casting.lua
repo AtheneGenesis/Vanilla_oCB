@@ -117,7 +117,8 @@ function oCB:SpellStart(s, d, dIsInSeconds, dontRegister)
 		self.frames.CastingBar.Latency:SetText("")
 		self.frames.CastingBar.LagBar:SetValue(0)
 	else
-		self.frames.CastingBar.Icon:Hide()
+		self.frames.CastingBar.Texture:SetTexture("Interface\\AddOns\\oCB\\Icon")
+		self.frames.CastingBar.Icon:Show()
 	end
 	
 	self.holdTime 	= 0
