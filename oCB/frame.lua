@@ -52,7 +52,7 @@ function oCB:Layout(b, s)
 	self.frames[b].Bar:SetStatusBarTexture(self.Textures[db.texture])
 	
 	if(s ~="MirrorBar") then
-		if not db.hideLagBar then
+		if db.hideLagBar then
 			self.frames[b].LagBar:Hide()
 		else
 			self.frames[b].LagBar:ClearAllPoints()

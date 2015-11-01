@@ -1,4 +1,4 @@
-﻿local BS = AceLibrary("Babble-Spell-2.2")
+local BS = AceLibrary("Babble-Spell-2.2")
 local elapsed = 0
 
 local roman = {
@@ -95,7 +95,7 @@ function oCB:SpellStart(s, d, dIsInSeconds, dontRegister)
 		end
 	end
 
-	if oCBIcon == self.ItemIcon then
+	if oCBIcon == self.ItemIcon and oCBIcon ~= nil then
 		self.frames.CastingBar.Texture:SetTexture(oCBIcon)
 		self.frames.CastingBar.Icon:Show()
 	elseif self.SpellIcon then
@@ -127,9 +127,6 @@ function oCB:SpellStart(s, d, dIsInSeconds, dontRegister)
 	self.fadeOut 	= nil
 	self.SpellIcon = nil
 	self.ItemIcon = nil
-	oCBRank = nil
-	oCBIcon = nil
-	oCBName = nil
 	
 	self.frames.CastingBar:Show()
 	self.frames.CastingBar.Spark:Show()
@@ -155,9 +152,6 @@ function oCB:SpellStop(dontUnregister)
 	self.fadeOut 	= 1
 	
 	oCBCastSent = nil
-	oCBIcon = nil
-	oCBName = nil
-	oCBRank = nil
 	
     if not dontUnregister then
         self:UnregisterEvent("SPELLCAST_STOP")
@@ -189,8 +183,6 @@ function oCB:SpellFailed(dontUnregister)
 	self.holdTime = GetTime() + 1
 	
 	oCBCastSent = nil
-	oCBIcon = nil
-	oCBRank = nil
     
     if not dontUnregister then
         self:UnregisterEvent("SPELLCAST_STOP")
@@ -266,10 +258,6 @@ function oCB:SpellChannelStart(d)
 	self.casting		= nil
 	self.channeling 	= 1
 	self.fadeOut 	= nil
-	
-	oCBName = nil
-	oCBIcon = nil
-	oCBRank = nil
 	
 	self.frames.CastingBar:Show()
 	self.frames.CastingBar.Spark:Show()
