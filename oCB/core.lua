@@ -252,7 +252,7 @@ function oCB:OnInitialize()
 						end
 					},
 					hidelagbar = {
-						name = "Show Latency Bar", type = 'toggle', order = 6,
+						name = "Hide Latency Bar", type = 'toggle', order = 6,
 						desc = "Lock/Hide the latency bar.",
 						get = function() return self.db.profile.CastingBar.hideLagBar end,
 						set = function() self.db.profile.CastingBar.hideLagBar = not self.db.profile.CastingBar.hideLagBar self:Layout("CastingBar") end
