@@ -1006,15 +1006,16 @@ function oCB:GetSpellRank(slot)
 	if rank then
 		return rank, name
 	else
-		return false
+		return false, name
 	end
 end
 
-function oCB:IsSpell(s, r)
-  if spell == nil or rank == nil then
+function oCB:IsSpell(spell, rank)
+  if (spell == nil) or (rank == nil) then
 	return false
   end
   local i = 1
+  rank = string.format(string.gsub(RANK_COLON, ":", "%%d"), tonumber(rank) or 1);
   while true do
     local spellName, spellRank = GetSpellName(i, BOOKTYPE_SPELL)
     if not spellName then
