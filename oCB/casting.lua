@@ -209,7 +209,7 @@ end
 
 function oCB:SpellChannelStart(d)
 	self:Debug("SpellChannelStart - Starting channel")
-	self:Debug("ChannelInfo - "..oCBName.." - "..(oCBRank or "no rank").." - "..(oCBIcon or ""))
+	self:Debug("ChannelInfo - "..oCBName or arg2.." - "..(oCBRank or "no rank").." - "..(oCBIcon or ""))
 	d = d / 1000
 	local c = self.db.profile.Colors.Channel
 	
