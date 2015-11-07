@@ -1015,7 +1015,11 @@ function oCB:IsSpell(spell, rank)
 	return false
   end
   local i = 1
-  rank = string.format(string.gsub(RANK_COLON, ":", "%%d"), tonumber(rank) or 1);
+  if (GetLocale() == "frFR") then
+	rank = string.format(string.gsub(RANK_COLON, ":", "%%d"), tonumber(rank) or 1);
+  else
+	rank = string.format(string.gsub(RANK_COLON, ":", " %%d"), tonumber(rank) or 1);
+  end
   while true do
     local spellName, spellRank = GetSpellName(i, BOOKTYPE_SPELL)
     if not spellName then

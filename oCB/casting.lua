@@ -42,6 +42,7 @@ function oCB:SpellStart(s, d, dIsInSeconds, dontRegister)
 	
 	if oCBRank and self.db.profile.CastingBar.spellShowRank then
 		if oCB:IsSpell(s, oCBRank) then
+			self:Debug("Rank Found: "..s.." "..oCBRank)
 			if self.db.profile.CastingBar.spellRomanRank then
 				local num = tonumber(oCBRank)
 				if num and num > 0 then
@@ -49,7 +50,11 @@ function oCB:SpellStart(s, d, dIsInSeconds, dontRegister)
 				end
 			end
 			if not self.db.profile.CastingBar.spellShortRank then
-				self.frames.CastingBar.Spell:SetText(s.." "..string.format(string.gsub(RANK_COLON, ":", "%%s"), oCBRank))
+				if (GetLocale() == "frFR") then
+					self.frames.CastingBar.Spell:SetText(s.." "..string.format(string.gsub(RANK_COLON, ":", "%%s"), oCBRank))
+				else
+					self.frames.CastingBar.Spell:SetText(s.." "..string.format(string.gsub(RANK_COLON, ":", " %%s"), oCBRank))
+				end
 			else
 				self.frames.CastingBar.Spell:SetText(s.." "..oCBRank)
 			end
