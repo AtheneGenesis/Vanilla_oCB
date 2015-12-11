@@ -186,6 +186,10 @@ function oCB:ShowTest()
 	if PlayerClass == "HUNTER" then
 		self:MIRROR_TIMER_START("FEIGNDEATH", 0, 10, 1, 0, BS["Feign Death"])
 	end
+
+	for type, frame in pairs(self.frames) do
+		frame:EnableMouse(true)
+	end
 end
 
 function oCB:HideTest()
@@ -194,6 +198,10 @@ function oCB:HideTest()
 	self:MIRROR_TIMER_STOP("BREATH")
 	if PlayerClass == "HUNTER" then
 		self:MIRROR_TIMER_STOP("FEIGNDEATH")
+	end
+
+	for type, frame in pairs(self.frames) do
+		frame:EnableMouse(false)
 	end
 end
 
