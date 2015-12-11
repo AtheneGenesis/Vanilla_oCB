@@ -9,7 +9,7 @@ function oCB:CreateFramework(b, n, s)
 		self.frames[b]:SetScript("OnUpdate", self.OnCasting)
 	end
 	self.frames[b]:SetMovable(true)
-	self.frames[b]:EnableMouse(true)
+	self.frames[b]:EnableMouse(false)
 	self.frames[b]:RegisterForDrag("LeftButton")
 	self.frames[b]:SetScript("OnDragStart", function() if not self.db.profile.lock then this:StartMoving() end end)
 	self.frames[b]:SetScript("OnDragStop", function() this:StopMovingOrSizing() self:savePosition() end)
