@@ -174,6 +174,7 @@ local Fonts 		= {
 
 oCB = AceLibrary("AceAddon-2.0"):new("AceEvent-2.0", "AceDebug-2.0", "AceHook-2.0", "AceDB-2.0", "AceConsole-2.0")
 local BS = AceLibrary("Babble-Spell-2.2")
+local waterfall 		= AceLibrary("Waterfall-1.0")
 local _, PlayerClass = UnitClass("player")
 
 function oCB:ShowTest()
@@ -214,6 +215,7 @@ function oCB:OnInitialize()
 
 	oCB_consoleOptions = {
 		type = 'group',
+		icon = "Interface\\AddOns\\oCB\\Icon",
 		args = {
 			title={
 					type='header',
@@ -221,6 +223,12 @@ function oCB:OnInitialize()
 					icon="Interface\\AddOns\\oCB\\Icon",
 					order=1
 				},
+			reset = {
+				type='execute',
+				name="reset",
+				desc="Reset",
+				func = function() self:Reset() end
+			},
 			lock = {
 				name = "Lock", type = 'toggle', order = 2,
 				desc = "Lock/Unlock the casting bar.",
@@ -876,25 +884,19 @@ function oCB:OnInitialize()
 	local slashOptions = {
 		type = 'group',
 		args={
-			config = {
-				type='execute',
-				name="config",
-				desc="Config",
-				func = function() oCB.dewdrop:Open(UIParent, 'children', oCB_consoleOptions, 'cursorX', true, 'cursorY', true) end
-			},
-			reset = {
-				type='execute',
-				name="reset",
-				desc="Reset",
-				func = function() self:Reset() end
-			}
+			
 		}
 	}
 	
 	self:RegisterDB("oCBDB")
 	self:RegisterDefaults("profile", Default)
 	
-	self:RegisterChatCommand({ "/oCB"}, slashOptions)
+	self:RegisterChatCommand({ "/oCB"}, function()	waterfall:Open('oCB3')	end)
+	self:RegisterChatCommand({ "/oCBdd"}, function()
+		oCB.dewdrop:Open(UIParent, 'children', oCB_consoleOptions, 'cursorX', true, 'cursorY', true) end)
+	self:RegisterChatCommand({ "/oCBcl"},	oCB_consoleOptions)
+
+	waterfall:Register('oCB3', 'aceOptions', oCB_consoleOptions, 'title','oCB3  |cff7f7fff<Genesis>|r','colorR', 0.8, 'colorG', 0.8, 'colorB', 0.5) 
     
 	self:SetDebugging(false)
 end
