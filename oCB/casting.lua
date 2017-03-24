@@ -100,38 +100,35 @@ function oCB:SpellStart(s, d, dIsInSeconds, dontRegister)
 		end
 	end
 
-	if oCBIcon == self.ItemIcon and oCBIcon ~= nil then
-		self.frames.CastingBar.Texture:SetTexture(oCBIcon)
-		self.frames.CastingBar.Icon:Show()
-	elseif self.SpellIcon then
-		self.frames.CastingBar.Texture:SetTexture(self.SpellIcon)
-		self.frames.CastingBar.Icon:Show()
-	elseif string.find(s, "^Recette") or string.find(s, "^Plans :") or string.find(s, "^Patron :") or string.find(s, "^Formule :") then --missing translation
-		self.frames.CastingBar.Texture:SetTexture("Interface\\AddOns\\oCB\\Icons\\Spell_Arcane_MindMastery")
-		self.frames.CastingBar.Icon:Show()
-		self.frames.CastingBar.Latency:SetText("")
-		self.frames.CastingBar.LagBar:SetWidth(0)
-	elseif self.ItemIcon then
-		self.frames.CastingBar.Texture:SetTexture(self.ItemIcon)
-		self.frames.CastingBar.Icon:Show()
-		self.frames.CastingBar.Latency:SetText("")
-		self.frames.CastingBar.LagBar:SetValue(0)
-	elseif s == "Invocation d'un char d'assaut qiraji jaune" then --clean that
-		self.frames.CastingBar.Texture:SetTexture("Interface/Icons/INV_Misc_QirajiCrystal_01")
-		self.frames.CastingBar.Icon:Show()
-		self.frames.CastingBar.Latency:SetText("")
-		self.frames.CastingBar.LagBar:SetValue(0)
-	else
-		self.frames.CastingBar.Texture:SetTexture("Interface\\AddOns\\oCB\\Icon")
-		self.frames.CastingBar.Icon:Show()
+	if not self.db.profile.CastingBar.hideIcon then
+		if oCBIcon == self.ItemIcon and oCBIcon ~= nil then
+			self.frames.CastingBar.Texture:SetTexture(oCBIcon)
+			self.frames.CastingBar.Icon:Show()
+		elseif self.SpellIcon then
+			self.frames.CastingBar.Texture:SetTexture(self.SpellIcon)
+			self.frames.CastingBar.Icon:Show()
+		elseif string.find(s, "^Recette") or string.find(s, "^Plans :") or string.find(s, "^Patron :") or string.find(s, "^Formule :") then --missing translation
+			self.frames.CastingBar.Texture:SetTexture("Interface\\AddOns\\oCB\\Icons\\Spell_Arcane_MindMastery")
+			self.frames.CastingBar.Icon:Show()
+			self.frames.CastingBar.Latency:SetText("")
+			self.frames.CastingBar.LagBar:SetWidth(0)
+		elseif self.ItemIcon then
+			self.frames.CastingBar.Texture:SetTexture(self.ItemIcon)
+			self.frames.CastingBar.Icon:Show()
+			self.frames.CastingBar.Latency:SetText("")
+			self.frames.CastingBar.LagBar:SetValue(0)
+		else
+			self.frames.CastingBar.Texture:SetTexture("Interface\\AddOns\\oCB\\Icon")
+			self.frames.CastingBar.Icon:Show()
+		end
 	end
 	
 	self.holdTime 	= 0
 	self.delay 		= 0
-	self.casting 		= 1
+	self.casting 	= 1
 	self.fadeOut 	= nil
-	self.SpellIcon = nil
-	self.ItemIcon = nil
+	self.SpellIcon 	= nil
+	self.ItemIcon 	= nil
 	
 	self.frames.CastingBar:Show()
 	self.frames.CastingBar.Spark:Show()
@@ -153,10 +150,12 @@ function oCB:SpellStop(dontUnregister)
 	end
 	
 	self.delay 		= 0
-	self.casting 		= nil
+	self.casting 	= nil
 	self.fadeOut 	= 1
 	
 	oCBCastSent = nil
+	
+	if not self.db.profile.lock then self:ShowTest() end
 	
     if not dontUnregister then
         self:UnregisterEvent("SPELLCAST_STOP")
@@ -254,7 +253,7 @@ function oCB:SpellChannelStart(d)
 	self.frames.CastingBar.Icon:Hide()
 	self.frames.CastingBar.Latency:SetText("")
 	
-	if oCBIcon then
+	if oCBIcon and not self.db.profile.CastingBar.hideIcon then
 		self.frames.CastingBar.Texture:SetTexture(oCBIcon)
 		self.frames.CastingBar.Icon:Show()
 	end
@@ -283,6 +282,8 @@ function oCB:SpellChannelStop()
 	self.fadeOut = 1
 	
 	oCBCastSent = nil
+	
+	if not self.db.profile.lock then self:ShowTest() end
 end
 
 function oCB:SpellChannelUpdate(d)
@@ -321,7 +322,9 @@ function oCB:OnCasting()
 		
 		if UnitOnTaxi("player") then
 			oCB.frames.CastingBar.Texture:SetTexture("Interface/Icons/Ability_Hunter_EagleEye")
-			oCB.frames.CastingBar.Icon:Show()
+			if not self.db.profile.CastingBar.hideIcon then
+				oCB.frames.CastingBar.Icon:Show()
+			end
 			oCB.frames.CastingBar.Latency:SetText("")
 			oCB.frames.CastingBar.LagBar:SetValue(0)
 		end

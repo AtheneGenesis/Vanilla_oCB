@@ -51,21 +51,6 @@ function oCB:Layout(b, s)
 	self.frames[b].Bar:SetFrameLevel(2)
 	self.frames[b].Bar:SetStatusBarTexture(self.Textures[db.texture])
 	
-	if(s ~="MirrorBar") then
-		if db.hideLagBar then
-			self.frames[b].LagBar:Hide()
-		else
-			self.frames[b].LagBar:ClearAllPoints()
-			self.frames[b].LagBar:SetPoint("RIGHT", self.frames[b], "LEFT", db.width+5, 0)
-			self.frames[b].LagBar:SetWidth(0)
-			self.frames[b].LagBar:SetHeight(db.height)
-			self.frames[b].LagBar:SetFrameLevel(1)
-			self.frames[b].LagBar:SetValue(0)
-			self.frames[b].LagBar:SetStatusBarTexture(self.Textures[db.texture])
-			self.frames[b].LagBar:Show()
-		end
-	end
-	
 	self.frames[b].Icon:ClearAllPoints()
 	self.frames[b].Icon:SetPoint("CENTER", self.frames[b], "LEFT", -db.height/2+2, 0)
 	self.frames[b].Icon:SetWidth(db.height+2)
@@ -77,7 +62,9 @@ function oCB:Layout(b, s)
 	})
 	self.frames[b].Icon:SetBackdropBorderColor(0, 0, 0, 0.7)
 	self.frames[b].Icon:SetBackdropColor(0, 0, 0, 0)
-	self.frames[b].Texture:SetTexture("Interface\\AddOns\\oCB\\Icon")
+	if not self.frames[b].Texture:GetTexture() then
+		self.frames[b].Texture:SetTexture("Interface\\AddOns\\oCB\\Icon")
+	end
 	self.frames[b].Texture:SetAlpha(0.9)
 	self.frames[b].Texture:SetWidth(db.height)
 	self.frames[b].Texture:SetHeight(db.height)
@@ -85,6 +72,11 @@ function oCB:Layout(b, s)
 	self.frames[b].Texture:ClearAllPoints()
 	self.frames[b].Texture:SetPoint("CENTER", self.frames[b].Icon, "CENTER", 0, 0)
 	
+	if db.hideIcon then
+		self.frames[b].Icon:Hide()
+	else
+		self.frames[b].Icon:Show()
+	end
 	
 	self.frames[b].Spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
 	self.frames[b].Spark:SetWidth(16)
@@ -114,6 +106,19 @@ function oCB:Layout(b, s)
 	self.frames[b].Spell:SetPoint("LEFT", self.frames[b], "LEFT", 15,1)
 	
 	if(s ~="MirrorBar") then
+		if db.hideLagBar then
+			self.frames[b].LagBar:Hide()
+		else
+			self.frames[b].LagBar:ClearAllPoints()
+			self.frames[b].LagBar:SetPoint("RIGHT", self.frames[b], "LEFT", db.width+5, 0)
+			self.frames[b].LagBar:SetWidth(0)
+			self.frames[b].LagBar:SetHeight(db.height)
+			self.frames[b].LagBar:SetFrameLevel(1)
+			self.frames[b].LagBar:SetValue(0)
+			self.frames[b].LagBar:SetStatusBarTexture(self.Textures[db.texture])
+			self.frames[b].LagBar:Show()
+		end
+	
 		self.frames[b].Delay:SetTextColor(1,0,0,1)
 		self.frames[b].Delay:SetJustifyH("RIGHT")
 		self.frames[b].Delay:SetFont(self.Fonts[db.delayFont], db.delaySize, (self.Outlines[db.delayOutline])..(db.delayFontMonochrome and "MONOCHROME" or ""))

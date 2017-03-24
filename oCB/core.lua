@@ -3,6 +3,7 @@ local Default				= {
 		width 			= 320,
 		height			= 31,
 		hideLagBar		= false,
+		hideIcon		= false,
 		edgeFile		= "None",
 		texture			= "Striped",
 		timeSize		= 19,
@@ -45,6 +46,7 @@ local Default				= {
 		texture			= "Striped",
 		timeSize		= 19,
 		timeFont		= "Visitor1",
+		hideIcon		= false,
 		timeFontMonochrome = true,
 		timeFontShadow = true,
 		timeFontShadowOffsetX = 1,
@@ -233,14 +235,14 @@ function oCB:OnInitialize()
 				name = "Lock", type = 'toggle', order = 2,
 				desc = "Lock/Unlock the casting bar.",
 				get = function() return self.db.profile.lock end,
-				set = function() self.db.profile.lock = not self.db.profile.lock if not self.db.profile.lock then self:ShowTest() elseif self.casting then oCB:HideTest() end end
+				set = function() self.db.profile.lock = not self.db.profile.lock if not self.db.profile.lock then self:ShowTest() else oCB:HideTest() end end
 			},
 			castingbar = {
 				name = "Casting Bar", type = 'group', order = 3,
 				desc = "Casting Bar", 
 				args = {
 					border = {
-						name = "Border", type = 'text', order = 1,
+						name = "Border", type = 'text', order = 3,
 						desc = "Toggle the border.",
 						get = function() return self.db.profile.CastingBar.edgeFile end,
 						set = function(v)
@@ -250,7 +252,7 @@ function oCB:OnInitialize()
 						validate = {"Default","None"}
 					},
 					width = {
-						name = "Width", type = 'range', min = 10, max = 500, step = 1, order = 5,
+						name = "Width", type = 'range', min = 10, max = 500, step = 1, order = 1,
 						desc = "Set the width of the casting bar.",
 						get = function() return self.db.profile.CastingBar.width end,
 						set = function(v)
@@ -268,10 +270,16 @@ function oCB:OnInitialize()
 						end
 					},
 					hidelagbar = {
-						name = "Hide Latency Bar", type = 'toggle', order = 6,
-						desc = "Lock/Hide the latency bar.",
+						name = "Hide Latency Bar", type = 'toggle', order = 5,
+						desc = "Show/Hide the latency bar.",
 						get = function() return self.db.profile.CastingBar.hideLagBar end,
 						set = function() self.db.profile.CastingBar.hideLagBar = not self.db.profile.CastingBar.hideLagBar self:Layout("CastingBar") end
+					},
+					hideicon = {
+						name = "Hide Spell Icon", type = 'toggle', order = 6,
+						desc = "Show/Hide the spell icon.",
+						get = function() return self.db.profile.CastingBar.hideIcon end,
+						set = function() self.db.profile.CastingBar.hideIcon = not self.db.profile.CastingBar.hideIcon self:Layout("CastingBar") end
 					},
 					texture = {
 						name = "Texture", type = 'text', order = 4,
@@ -622,7 +630,7 @@ function oCB:OnInitialize()
 				desc = "Mirror Bar",
 				args = {
 					width = {
-						name = "Width", type = 'range', min = 10, max = 500, step = 1,
+						name = "Width", type = 'range', min = 10, max = 500, step = 1, order = 1,
 						desc = "Set the width of the mirror bar.",
 						get = function() return self.db.profile.MirrorBar.width end,
 						set = function(v)
@@ -633,7 +641,7 @@ function oCB:OnInitialize()
 						end
 					},
 					height = {
-						name = "Height", type = 'range', min = 5, max = 50, step = 1,
+						name = "Height", type = 'range', min = 5, max = 50, step = 1, order = 2,
 						desc = "Set the height of the mirror bar.",
 						get = function() return self.db.profile.MirrorBar.height end,
 						set = function(v)
@@ -644,7 +652,7 @@ function oCB:OnInitialize()
 						end
 					},
 					border = {
-						name = "Border", type = 'text',
+						name = "Border", type = 'text', order = 3,
 						desc = "Toggle the border.",
 						get = function() return self.db.profile.MirrorBar.edgeFile end,
 						set = function(v)
@@ -656,7 +664,7 @@ function oCB:OnInitialize()
 						validate = {"Default","None"}
 					},
 					texture = {
-						name = "Texture", type = 'text',
+						name = "Texture", type = 'text', order = 4,
 						desc = "Toggle the texture.",
 						get = function() return self.db.profile.MirrorBar.texture end,
 						set = function(v)
@@ -666,6 +674,17 @@ function oCB:OnInitialize()
 							self:Layout("FEIGNDEATH", "MirrorBar")
 						end,
 						validate = {"Aluminium", "Armory", "BantoBar", "Bars", "Blizzard", "Bumps", "Button", "Charcoal", "Cilo", "Cloud", "Comet", "Dabs", "DarkBottom", "Diagonal", "Empty", "Falumn", "Fifths", "Flat", "Fourths", "Frost", "Glamour", "Glamour2", "Glamour3", "Glamour4", "Glamour5", "Glamour6", "Glamour7", "Glass", "Glaze", "Glaze2", "Gloss", "Graphite", "Grid", "Hatched", "Healbot", "LiteStep", "LiteStepLite", "Lyfe", "Melli", "MelliDark", "MelliDarkRough", "Minimalist", "Default", "Otravi", "Outline", "Perl", "Perl2", "Pill", "Rain", "Rocks", "Round", "Ruben", "Runes", "Skewed", "Smooth", "Smoothv2", "Smudge", "Steel", "Striped", "Tube", "Water", "Wglass", "Wisps", "Xeon"}
+					},
+					hideicon = {
+						name = "Hide Icon", type = 'toggle', order = 5,
+						desc = "Show/Hide the icon.",
+						get = function() return self.db.profile.MirrorBar.hideIcon end,
+						set = function()
+							self.db.profile.MirrorBar.hideIcon = not self.db.profile.MirrorBar.hideIcon
+							self:Layout("BREATH", "MirrorBar")
+							self:Layout("EXHAUSTION", "MirrorBar")
+							self:Layout("FEIGNDEATH", "MirrorBar")
+							end
 					},
 					font = {
 						name = "Font", type = 'group',
