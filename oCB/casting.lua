@@ -322,9 +322,6 @@ function oCB:OnCasting()
 		
 		if UnitOnTaxi("player") then
 			oCB.frames.CastingBar.Texture:SetTexture("Interface/Icons/Ability_Hunter_EagleEye")
-			if not self.db.profile.CastingBar.hideIcon then
-				oCB.frames.CastingBar.Icon:Show()
-			end
 			oCB.frames.CastingBar.Latency:SetText("")
 			oCB.frames.CastingBar.LagBar:SetValue(0)
 		end

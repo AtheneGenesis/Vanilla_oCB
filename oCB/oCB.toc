@@ -3,7 +3,7 @@
 ## Author: Haste, Athene
 ## Notes: A casting bar replacement
 ## Notes-frFR: Remplacement de la barre de cast.
-## Version: 3.4
+## Version: 3.4.1
 ## DefaultState: Enabled
 ## OptionalDeps: Ace2, DewdropLib
 ## LoadOnDemand: 0
